@@ -36,24 +36,24 @@ function createNode(cwd, name, node) {
   return { error: null };
 }
 
-function mkdir(cwd, args) {
+function mkdir(cwd, args, output) {
     const dirName = args[0];
     const result = createNode(cwd, dirName, {
         type: 'dir',
         name: dirName,
         children: {}
     });
-    if (result.error) console.log(`mkdir: ${result.error}`);
+    if (result.error) output(`mkdir: ${result.error}`);
 }
 
-function touch(cwd, args) {
+function touch(cwd, args, output) {
     const fileName = args[0];
     const result = createNode(cwd, fileName, {
         type: 'file',
         name: fileName,
         content: ''
     });
-    if (result.error) console.log(`touch: ${result.error}`);
+    if (result.error) output(`touch: ${result.error}`);
 }
 
 // command parser
@@ -70,24 +70,19 @@ const commands = {
     touch
 }
 
-function dispatch (command, args, cwd) {
+function dispatch (command, args, cwd, output) {
     if (command === '') {
         return;
     }
     if (commands[command]) {
-        commands[command](cwd, args);
+        commands[command](cwd, args, output);
     }
     else {
-        console.log(`${command}: command not found`);
+        output(`${command}: command not found`);
     }
 }
 
-function runCommand(rawInput) {
+function runCommand(rawInput, output) {
   const { command, args } = parseInput(rawInput);
-  dispatch(command, args, cwd);
+  dispatch(command, args, cwd, output);
 }
-
-runCommand('mkdir projects');
-runCommand('mkdir projects');
-console.log(Object.keys(root.children));
-console.log(root.children.projects.name);
