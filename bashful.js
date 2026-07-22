@@ -25,6 +25,8 @@ const soham = {
 
 home.children['soham'] = soham
 
+let cwd = root
+
 function createNode(cwd, name, node) {
   if (cwd.children[name]) {
     return { error: `cannot create '${name}': File exists` };
@@ -34,29 +36,58 @@ function createNode(cwd, name, node) {
   return { error: null };
 }
 
-function mkdir(cwd, dirName) {
-  const result = createNode(cwd, dirName, {
-    type: 'dir',
-    name: dirName,
-    children: {}
-  });
-  if (result.error) console.log(`mkdir: ${result.error}`);
+function mkdir(cwd, args) {
+    const dirName = args[0];
+    const result = createNode(cwd, dirName, {
+        type: 'dir',
+        name: dirName,
+        children: {}
+    });
+    if (result.error) console.log(`mkdir: ${result.error}`);
 }
 
-function touch(cwd, fileName) {
-  const result = createNode(cwd, fileName, {
-    type: 'file',
-    name: fileName,
-    content: ''
-  });
-  if (result.error) console.log(`touch: ${result.error}`);
+function touch(cwd, args) {
+    const fileName = args[0];
+    const result = createNode(cwd, fileName, {
+        type: 'file',
+        name: fileName,
+        content: ''
+    });
+    if (result.error) console.log(`touch: ${result.error}`);
 }
 
 // command parser
 
-function parseCommand(rawInput) {
-    const parts = rawInput.trim().split(' ');
+function parseInput(rawInput) {
+    const parts = rawInput.trim().split(/\s+/);
     const command = parts[0];
     const args = parts.slice(1);
     return { command, args };
 }
+
+const commands = {
+    mkdir,
+    touch
+}
+
+function dispatch (command, args, cwd) {
+    if (command === '') {
+        return;
+    }
+    if (commands[command]) {
+        commands[command](cwd, args);
+    }
+    else {
+        console.log(`${command}: command not found`);
+    }
+}
+
+function runCommand(rawInput) {
+  const { command, args } = parseInput(rawInput);
+  dispatch(command, args, cwd);
+}
+
+runCommand('mkdir projects');
+runCommand('mkdir projects');
+console.log(Object.keys(root.children));
+console.log(root.children.projects.name);
