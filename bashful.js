@@ -7,25 +7,9 @@ const root = {
     children: {}
 }
 
-const home = {
-    type: 'dir',
-    name: 'home',
-    parent: root,
-    children: {}
-}
-
-root.children['home'] = home
-
-const soham = {
-    type: 'dir',
-    name: 'soham',
-    parent: home,
-    children: {}
-}
-
-home.children['soham'] = soham
-
 let cwd = root
+
+// commands
 
 function createNode(cwd, name, node) {
   if (cwd.children[name]) {
@@ -56,6 +40,26 @@ function touch(cwd, args, output) {
     if (result.error) output(`touch: ${result.error}`);
 }
 
+function ls(cwd, args, output) {
+    const result = Object.keys(cwd.children).join('\r\n');
+    output(result);
+}
+
+function cd(cwd, args, output) {
+    const target = args[0];
+    const dest = cwd.children[target];
+
+    if (!dest) {
+        output(`cd: ${target}: No such file or directory`);
+        return cwd;
+    }
+    if (dest.type !== 'dir') {
+        output(`cd: not a directory: ${target}`);
+        return cwd;
+    }
+    return dest;
+}
+
 // command parser
 
 function parseInput(rawInput) {
@@ -66,23 +70,29 @@ function parseInput(rawInput) {
 }
 
 const commands = {
+    ls,
     mkdir,
-    touch
+    touch,
+    cd
 }
 
 function dispatch (command, args, cwd, output) {
     if (command === '') {
-        return;
+        return cwd;
     }
     if (commands[command]) {
-        commands[command](cwd, args, output);
+        const result = commands[command](cwd, args, output);
+        if (result !== undefined) {
+            cwd = result;
+        }
     }
     else {
         output(`${command}: command not found`);
     }
+    return cwd;
 }
 
 function runCommand(rawInput, output) {
-  const { command, args } = parseInput(rawInput);
-  dispatch(command, args, cwd, output);
+    const { command, args } = parseInput(rawInput);
+    cwd = dispatch(command, args, cwd, output)
 }
