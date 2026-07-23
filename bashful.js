@@ -7,6 +7,15 @@ const root = {
     children: {}
 }
 
+const text = {
+    type: 'file',
+    name: 'text',
+    content: 'Hello, world!',
+    parent: root,
+}
+
+root.children['text'] = text;
+
 let cwd = root
 
 // commands
@@ -20,6 +29,25 @@ function createNode(cwd, name, node) {
   return { error: null };
 }
 
+function getPath(node) {
+    const parts = [];
+    while (node.parent !== null) {
+        parts.unshift(node.name);
+        node = node.parent;
+    }
+    return '/' + parts.join('/');
+}
+
+const commands = {
+    ls,
+    rm,
+    mkdir,
+    touch,
+    cd,
+    pwd,
+    cat
+}
+
 function mkdir(cwd, args, output) {
     const dirName = args[0];
     const result = createNode(cwd, dirName, {
@@ -28,6 +56,18 @@ function mkdir(cwd, args, output) {
         children: {}
     });
     if (result.error) output(`mkdir: ${result.error}`);
+}
+
+function rm(cwd, args, output) {
+    const target = args[0];
+    const dest = cwd.children[target];
+
+    if (!dest) {
+        output(`rm: ${target}: No such file or directory`);
+        return cwd;
+    }
+    delete cwd.children[target];
+    return cwd;
 }
 
 function touch(cwd, args, output) {
@@ -60,6 +100,27 @@ function cd(cwd, args, output) {
     return dest;
 }
 
+function cat(cwd, args, output) {
+    const target = args[0];
+    const dest = cwd.children[target];
+
+    if (!dest) {
+        output(`cat: ${target}: No such file or directory`);
+        return cwd;
+    }
+    if (dest.type !== 'file') {
+        output(`cat: not a file: ${target}`);
+        return cwd;
+    }
+    output(dest.content);
+    return cwd;
+}
+
+function pwd(cwd, args, output) {
+    output(getPath(cwd));
+    return cwd;
+}
+
 // command parser
 
 function parseInput(rawInput) {
@@ -67,13 +128,6 @@ function parseInput(rawInput) {
     const command = parts[0];
     const args = parts.slice(1);
     return { command, args };
-}
-
-const commands = {
-    ls,
-    mkdir,
-    touch,
-    cd
 }
 
 function dispatch (command, args, cwd, output) {
