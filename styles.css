@@ -13,3 +13,7 @@ html, body {
   height: 100%;
   color: #fff;
 }
+
+.xterm-viewport::-webkit-scrollbar {
+  display: none;
+}

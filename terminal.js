@@ -2,7 +2,10 @@ const terminal = new Terminal();
 const fitAddon = new FitAddon.FitAddon();
 terminal.loadAddon(fitAddon);
 terminal.open(document.getElementById('terminal'));
-fitAddon.fit();
+
+window.addEventListener('load', () => {
+  fitAddon.fit();
+});
 
 window.addEventListener('resize', () => {
   fitAddon.fit();
