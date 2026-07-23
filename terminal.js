@@ -1,4 +1,4 @@
-const terminal = new Terminal();
+const terminal = new Terminal({fontSize: 20});
 const fitAddon = new FitAddon.FitAddon();
 terminal.loadAddon(fitAddon);
 terminal.open(document.getElementById('terminal'));
@@ -10,6 +10,12 @@ window.addEventListener('load', () => {
 window.addEventListener('resize', () => {
   fitAddon.fit();
 });
+
+const banner = `░█▀▄░█▀█░█▀▀░█░█░█▀▀░█░█░█░░\r
+░█▀▄░█▀█░▀▀█░█▀█░█▀▀░█░█░█░░\r
+░▀▀░░▀░▀░▀▀▀░▀░▀░▀░░░▀▀▀░▀▀▀ \r
+\n`;
+terminal.write(banner);
 
 writePrompt();
 
