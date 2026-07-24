@@ -45,7 +45,8 @@ const commands = {
     touch,
     cd,
     pwd,
-    cat
+    cat,
+    echo
 }
 
 function mkdir(cwd, args, output) {
@@ -85,10 +86,21 @@ function ls(cwd, args, output) {
     output(result);
 }
 
+function echo(cwd, args, output) {
+    const text = args.join(' ');
+    output(text);
+}
+
 function cd(cwd, args, output) {
     const target = args[0];
+    if (target === "..") {
+        if (cwd === root) {
+            return cwd;
+        }
+        return cwd.parent;
+    }
     const dest = cwd.children[target];
-
+    
     if (!dest) {
         output(`cd: ${target}: No such file or directory`);
         return cwd;
